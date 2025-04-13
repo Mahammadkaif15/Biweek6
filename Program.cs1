@@ -1,0 +1,91 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace HotelReservation
+{
+    class Customer
+    {
+        public string Name { get; set; }
+        public int Nights { get; set; }
+        public bool RoomService { get; set; }
+        public double Cost { get; set; }
+
+        public Customer(string name, int nights, bool roomService, double cost)
+        {
+            Name = name;
+            Nights = nights;
+            RoomService = roomService;
+            Cost = cost;
+        }
+    }
+
+    class Program
+    {
+        static double CalculateCost(int nights, bool roomService)
+        {
+            double cost;
+            if (nights >= 1 && nights <= 3)
+                cost = nights * 100;
+            else if (nights >= 4 && nights <= 10)
+                cost = nights * 80.5;
+            else
+                cost = nights * 75.3;
+
+            if (roomService)
+                cost += cost * 0.10; // 10% extra for room service
+
+            return cost;
+        }
+
+        static void Main(string[] args)
+        {
+            List<Customer> customers = new List<Customer>();
+            Console.WriteLine("\t\t\tWelcome to Meriton Hotel");
+
+            while (true)
+            {
+                Console.Write("Enter Customer Name: ");
+                string name = Console.ReadLine();
+
+                int nights;
+                while (true)
+                {
+                    Console.Write("Enter Number of Nights (1-20): ");
+                    if (int.TryParse(Console.ReadLine(), out nights) && nights >= 1 && nights <= 20)
+                        break;
+                    else
+                        Console.WriteLine("Invalid input! Please enter a number between 1 and 20.");
+                }
+
+                Console.Write("Enter 'yes' or 'no' for room service: ");
+                bool roomService = Console.ReadLine().Trim().ToLower() == "yes";
+
+                double cost = CalculateCost(nights, roomService);
+                customers.Add(new Customer(name, nights, roomService, cost));
+
+                Console.WriteLine($"Total price for {name} is ${cost:F2}\n");
+                Console.WriteLine("Press 'q' to exit or any other key to continue:");
+                if (Console.ReadLine().Trim().ToLower() == "q")
+                    break;
+                Console.WriteLine("-----------------------------------------------");
+            }
+
+            Console.WriteLine("\n\t\tSummary of Reservations");
+            Console.WriteLine("Name\t\tNights\t\tRoom Service\t\tCharge");
+            foreach (var customer in customers)
+            {
+                Console.WriteLine($"{customer.Name}\t\t{customer.Nights}\t\t{(customer.RoomService ? "Yes" : "No")}\t\t${customer.Cost:F2}");
+            }
+
+            if (customers.Count > 0)
+            {
+                var highestSpender = customers.OrderByDescending(c => c.Cost).First();
+                var lowestSpender = customers.OrderBy(c => c.Cost).First();
+
+                Console.WriteLine($"\nCustomer spending the most: {highestSpender.Name} - ${highestSpender.Cost:F2}");
+                Console.WriteLine($"Customer spending the least: {lowestSpender.Name} - ${lowestSpender.Cost:F2}");
+            }
+        }
+    }
+}
